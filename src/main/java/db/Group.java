@@ -7,7 +7,7 @@ public class Group {
 
     private String name;
 
-    private String about;
+    private String description;
 
     public Group(int id) {
         this.id = id;
@@ -20,7 +20,7 @@ public class Group {
     public Group(int id, String name, String about) {
         this.id = id;
         this.name = name;
-        this.about = about;
+        this.description = about;
     }
 
     public int getId() {
@@ -31,8 +31,8 @@ public class Group {
         return name;
     }
 
-    public String getAbout() {
-        return about;
+    public String getDescription() {
+        return description;
     }
 
     @Override
@@ -40,7 +40,7 @@ public class Group {
         return "Group{" +
                 "id=" + id +
                 ", name='" + name + '\'' +
-                ", about='" + about + '\'' +
+                ", about='" + description + '\'' +
                 '}';
     }
 
@@ -49,6 +49,6 @@ public class Group {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Group group = (Group) o;
-        return id == group.id && name.equals(group.name) && Objects.equals(about, group.about);
+        return id == group.id && name.equals(group.name) && Objects.equals(description, group.description);
     }
 }

@@ -11,7 +11,7 @@ public class Products {
         private String group;
         private double price;
 
-        private String about;
+        private String description;
 
         private String producer;
 
@@ -21,7 +21,7 @@ public class Products {
             this.amount = amount;
             this.group = group;
             this.price = price;
-            this.about = about;
+            this.description = about;
             this.producer = producer;
         }
 
@@ -30,7 +30,7 @@ public class Products {
             this.amount = amount;
             this.group = group;
             this.price = price;
-            this.about = about;
+            this.description = about;
             this.producer = producer;
         }
 
@@ -60,8 +60,8 @@ public class Products {
             return name;
         }
 
-        public String getAbout() {
-            return about;
+        public String getDescription() {
+            return description;
         }
 
         public String getProducer() {
@@ -76,7 +76,7 @@ public class Products {
                     ", amount=" + amount +
                     ", group=" + group +
                     ", price=" + price +
-                    ", about='" + about + '\'' +
+                    ", about='" + description + '\'' +
                     ", producer='" + producer + '\'' +
                     '}';
         }
@@ -86,6 +86,6 @@ public class Products {
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
             Products Products = (Products) o;
-            return amount == Products.amount && group == Products.group && Double.compare(Products.price, price) == 0 && name.equals(Products.name) && Objects.equals(about, Products.about) && Objects.equals(producer, Products.producer);
+            return amount == Products.amount && group == Products.group && Double.compare(Products.price, price) == 0 && name.equals(Products.name) && Objects.equals(description, Products.description) && Objects.equals(producer, Products.producer);
         }
 }
