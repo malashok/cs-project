@@ -1,5 +1,7 @@
 package db;
 
+import javax.crypto.spec.DESedeKeySpec;
+import javax.swing.*;
 import java.security.NoSuchAlgorithmException;
 import java.sql.*;
 import java.util.ArrayList;
@@ -99,16 +101,59 @@ public class Database {
     }
 
     public void deleteProduct(String name) throws SQLException {
-        this.sql_query = this.connection.prepareStatement("DELETE FROM Goods WHERE name=?");
-        this.sql_query.setString(1, name);
         try {
+        this.sql_query = this.connection.prepareStatement("DELETE FROM PRODUCTS WHERE name=?");
+        this.sql_query.setString(1, name);
             this.sql_query.execute();
         } catch (SQLException e) {
             e.printStackTrace();
             this.sql_query.getConnection().rollback();
-        } finally {
-            this.sql_query.getConnection().commit();
         }
     }
 
+    public void deleteGroup(String name) throws SQLException {
+        try {
+        this.sql_query = this.connection.prepareStatement("DELETE FROM GROUPS WHERE name=?");
+        this.sql_query.setString(1, name);
+            this.sql_query.execute();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            this.sql_query.getConnection().rollback();
+        }
+    }
+
+    public void updateProduct(int id, String name, double price, int amount, String description, String producer, String groupName) throws SQLException {
+        try{
+        this.sql_query = this.connection.prepareStatement("UPDATE PRODUCTS SET NAME = ? , "
+                + "PRICE = ? , "
+                + "AMOUNT = ? , "
+                + "GROUP_NAME = ? ,"
+                + "DESCRIPTION = ?,"
+                + "PRODUCER = ? "
+                + "WHERE ID = ?");
+            this.sql_query.setString(1, name);
+            this.sql_query.setDouble(2, price);
+            this.sql_query.setInt(3, amount);
+            this.sql_query.setString(4, groupName);
+            this.sql_query.setString(5, description);
+            this.sql_query.setString(6, producer);
+            this.sql_query.setInt(7, id);
+            this.sql_query.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+    public void updateGroup(int id, String name, String description) throws SQLException {
+        try{
+            this.sql_query = this.connection.prepareStatement("UPDATE GROUPS SET NAME = ? , "
+                    + "DESCRIPTION = ? "
+                    + "WHERE ID = ?");
+            this.sql_query.setString(1, name);
+            this.sql_query.setString(2, description);
+            this.sql_query.setInt(3, id);
+            this.sql_query.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
 }

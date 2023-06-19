@@ -10,8 +10,12 @@ import java.sql.SQLException;
 public class Main {
     public static void main(String[] args) throws SQLException, NoSuchAlgorithmException {
         Database db = new Database();
-        db.createUser("user", "12345");
+       // db.createUser("user", "12345");
         //db.createGroup("fruit", "dddd");
-        //db.createProduct("terst1", 300, 28, "desc", "ukraine", "fruit");
+        //db.createProduct("ORANGE", 300, 28, "desc", "ukraine", "fruit");
+       // db.updateProduct(8,"apple", 300, 10000, "desc", "ukraine", "fruit");
+       //db.deleteProduct("ORANGE");
+        //db.deleteGroup("fruit");
+        db.updateGroup(2, "nnnn", "");
     }
 }
