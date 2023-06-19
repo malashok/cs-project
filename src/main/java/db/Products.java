@@ -1,0 +1,91 @@
+package db;
+
+import java.util.Objects;
+
+public class Products {
+
+        private int id;
+        private String name;
+        private int amount;
+
+        private String group;
+        private double price;
+
+        private String about;
+
+        private String producer;
+
+        public Products(int id, String name, int amount, String group, double price, String about, String producer) {
+            this.id = id;
+            this.name = name;
+            this.amount = amount;
+            this.group = group;
+            this.price = price;
+            this.about = about;
+            this.producer = producer;
+        }
+
+        public Products(String name, int amount, String group, double price, String about, String producer) {
+            this.name = name;
+            this.amount = amount;
+            this.group = group;
+            this.price = price;
+            this.about = about;
+            this.producer = producer;
+        }
+
+        public Products(int id) {
+            this.id = id;
+        }
+
+        public Products(){}
+
+        public int getId() {
+            return id;
+        }
+
+        public double getPrice() {
+            return price;
+        }
+
+        public int getAmount() {
+            return amount;
+        }
+
+        public String getGroup() {
+            return group;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public String getAbout() {
+            return about;
+        }
+
+        public String getProducer() {
+            return producer;
+        }
+
+        @Override
+        public String toString() {
+            return "Products{" +
+                    "id=" + id +
+                    ", name='" + name + '\'' +
+                    ", amount=" + amount +
+                    ", group=" + group +
+                    ", price=" + price +
+                    ", about='" + about + '\'' +
+                    ", producer='" + producer + '\'' +
+                    '}';
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            Products Products = (Products) o;
+            return amount == Products.amount && group == Products.group && Double.compare(Products.price, price) == 0 && name.equals(Products.name) && Objects.equals(about, Products.about) && Objects.equals(producer, Products.producer);
+        }
+}
