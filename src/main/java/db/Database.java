@@ -47,7 +47,7 @@ public class Database {
                     "CREATE TABLE IF NOT EXISTS USERS(" +
                             "ID SERIAL PRIMARY KEY," +
                             "NAME VARCHAR(50) UNIQUE NOT NULL," +
-                            "password VARCHAR(50))"
+                            "PASSWORD VARCHAR(50))"
             );
             this.sql_query.execute();
 
@@ -57,7 +57,7 @@ public class Database {
         }
     }
 
-    public void create_group(String name, String description) throws SQLException {
+    public void createGroup(String name, String description) throws SQLException {
         try {
         this.sql_query = this.connection.prepareStatement("INSERT INTO GROUPS(name, description) VALUES (?, ?)");
         this.sql_query.setString(1, name);
@@ -85,4 +85,30 @@ public class Database {
             throw new SQLException(e);
     }
     }
+
+    public void createUser(String name, String password) throws SQLException, NoSuchAlgorithmException {
+        try {
+        this.sql_query = this.connection.prepareStatement("INSERT INTO USERS(name, password) VALUES (?, ?)");
+        this.sql_query.setString(1, name);
+        this.sql_query.setString(2, PasswordEncrypt.encrypt_password(password));
+
+            this.sql_query.execute();
+        } catch (SQLException e) {
+            throw new SQLException(e);
+        }
+    }
+
+    public void deleteProduct(String name) throws SQLException {
+        this.sql_query = this.connection.prepareStatement("DELETE FROM Goods WHERE name=?");
+        this.sql_query.setString(1, name);
+        try {
+            this.sql_query.execute();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            this.sql_query.getConnection().rollback();
+        } finally {
+            this.sql_query.getConnection().commit();
+        }
+    }
+
 }
