@@ -23,6 +23,14 @@ public class Database {
             Class.forName("org.postgresql.Driver");
             this.connection = DriverManager.getConnection("jdbc:postgresql://localhost:5432/postgres", "root", "root");
             this.sql_query = this.connection.prepareStatement(
+                    "CREATE TABLE IF NOT EXISTS GROUPS (" +
+                    "ID SERIAL PRIMARY KEY," +
+                    "NAME VARCHAR(50) UNIQUE NOT NULL ,"+
+                    "DESCRIPTION VARCHAR(100)"
+            );
+            this.sql_query.execute();
+
+            this.sql_query = this.connection.prepareStatement(
                     "CREATE TABLE IF NOT EXISTS PRODUCTS(" +
                             "ID SERIAL PRIMARY KEY," +
                             "NAME VARCHAR(50) UNIQUE NOT NULL," +
@@ -30,16 +38,17 @@ public class Database {
                             "AMOUNT INTEGER NOT NULL,"+
                             "DESCRIPTION VARCHAR(100),"+
                             "PRODUCER VARCHAR(50) NOT NULL,"+
-                            "FOREIGN KEY (group_id) REFERENCES Groups (id) ON UPDATE CASCADE ON DELETE CASCADE");
+                            "FOREIGN KEY (GROUP) REFERENCES GROUP (NAME) ON UPDATE CASCADE ON DELETE CASCADE");
             this.sql_query.execute();
+
             this.sql_query = this.connection.prepareStatement(
-                    "CREATE TABLE IF NOT EXISTS 'Products' ('id' INTEGER PRIMARY KEY AUTOINCREMENT, 'name' TEXT, 'price' CURRENCY, 'amount' INTEGER, 'groupName' TEXT, 'about' TEXT, 'producer' TEXT, UNIQUE('name'), FOREIGN KEY (groupName) REFERENCES Group(name) ON UPDATE CASCADE ON DELETE CASCADE)"
+                    "CREATE TABLE IF NOT EXISTS USERS("+
+                    "ID SERIAL PRIMARY KEY,"+
+                    "NAME VARCHAR(50) UNIQUE NOT NULL,"+
+                    "password VARCHAR(50)"
             );
             this.sql_query.execute();
-            this.sql_query = this.connection.prepareStatement(
-                    "CREATE TABLE IF NOT EXISTS 'User' ('id' INTEGER PRIMARY KEY AUTOINCREMENT, 'username' TEXT, 'password' TEXT, UNIQUE('username'))"
-            );
-            this.sql_query.execute();
+
             this.sql_query.getConnection().setAutoCommit(false);
             this.sql_query.getConnection().commit();
             this.create_user("superuser", "111111");
