@@ -62,7 +62,7 @@ public class Database {
     public int create_user(String username, String password) throws SQLException, NoSuchAlgorithmException {
         this.sql_query = this.connection.prepareStatement("INSERT INTO User(username, password) VALUES (?, ?)");
         this.sql_query.setString(1, username);
-        this.sql_query.setString(2, PasswordEncryptor.encrypt_password(password));
+        this.sql_query.setString(2, PasswordEncrypt.encrypt_password(password));
         int id = -1;
         try {
             this.sql_query.execute();
