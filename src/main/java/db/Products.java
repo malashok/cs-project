@@ -15,22 +15,22 @@ public class Products {
 
         private String producer;
 
-        public Products(int id, String name, int amount, String group, double price, String about, String producer) {
+        public Products(int id, String name, int amount, String group, double price, String description, String producer) {
             this.id = id;
             this.name = name;
             this.amount = amount;
             this.group = group;
             this.price = price;
-            this.description = about;
+            this.description = description;
             this.producer = producer;
         }
 
-        public Products(String name, int amount, String group, double price, String about, String producer) {
+        public Products(String name, int amount, String group, double price, String description, String producer) {
             this.name = name;
             this.amount = amount;
             this.group = group;
             this.price = price;
-            this.description = about;
+            this.description = description;
             this.producer = producer;
         }
 
@@ -76,7 +76,7 @@ public class Products {
                     ", amount=" + amount +
                     ", group=" + group +
                     ", price=" + price +
-                    ", about='" + description + '\'' +
+                    ", description='" + description + '\'' +
                     ", producer='" + producer + '\'' +
                     '}';
         }

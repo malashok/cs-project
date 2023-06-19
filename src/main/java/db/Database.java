@@ -157,7 +157,7 @@ public class Database {
         }
     }
 
-    public List<Products> getAllProducts() {
+    public ArrayList<Products> getAllProducts() {
         try {
             ArrayList<Products> products = new ArrayList<Products>();
             this.sql_query = this.connection.prepareStatement("SELECT * FROM PRODUCTS");
