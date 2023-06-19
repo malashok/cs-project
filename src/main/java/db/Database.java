@@ -51,11 +51,38 @@ public class Database {
             );
             this.sql_query.execute();
 
-
-
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
             System.exit(0);
         }
+    }
+
+    public void create_group(String name, String description) throws SQLException {
+        try {
+        this.sql_query = this.connection.prepareStatement("INSERT INTO GROUPS(name, description) VALUES (?, ?)");
+        this.sql_query.setString(1, name);
+        this.sql_query.setString(2, description);
+            this.sql_query.execute();
+
+        } catch (SQLException e) {
+            this.sql_query.getConnection().rollback();
+        }
+    }
+
+    public void createProduct(String name, double price, int amount, String description, String producer, String groupName) throws SQLException {
+        try {
+            this.sql_query = this.connection.prepareStatement("INSERT INTO PRODUCTS(name, price, amount, group_name, description, producer) VALUES (?, ?, ?, ?, ?, ?)");
+        this.sql_query.setString(1, name);
+        this.sql_query.setDouble(2, price);
+        this.sql_query.setInt(3, amount);
+        this.sql_query.setString(4, groupName);
+        this.sql_query.setString(5, description);
+        this.sql_query.setString(6, producer);
+
+            this.sql_query.execute();
+        } catch (SQLException e) {
+            //this.sql_query.getConnection().rollback();
+            throw new SQLException(e);
+    }
     }
 }

@@ -9,5 +9,7 @@ import java.sql.SQLException;
 public class Main {
     public static void main(String[] args) throws SQLException {
         Database db = new Database();
+        db.create_group("fruit", "dddd");
+        db.createProduct("terst1", 300, 28, "desc", "ukraine", "fruit");
     }
 }
