@@ -202,4 +202,49 @@ public class Database {
             throw new RuntimeException(e);
         }
     }
+
+    public Products getProductByName(String name) {
+        try {
+            this.sql_query = this.connection.prepareStatement("SELECT * FROM PRODUCTS WHERE name=?");
+            this.sql_query.setString(1, name);
+            this.result_set = this.sql_query.executeQuery();
+            Products product = null;
+            while(this.result_set.next()){
+             product = new Products(this.result_set.getInt("id"),
+                    this.result_set.getString("name"),
+                    this.result_set.getInt("amount"),
+                    this.result_set.getString("group_name"),
+                    this.result_set.getDouble("price"),
+                    this.result_set.getString("description"),
+                    this.result_set.getString("producer"));
+            }
+            this.result_set.close();
+            return product;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public Products getProductById(int id) {
+        try {
+            this.sql_query = this.connection.prepareStatement("SELECT * FROM PRODUCTS WHERE id=?");
+            this.sql_query.setInt(1, id);
+            this.result_set = this.sql_query.executeQuery();
+            Products product = null;
+            while(this.result_set.next()){
+                product = new Products(this.result_set.getInt("id"),
+                        this.result_set.getString("name"),
+                        this.result_set.getInt("amount"),
+                        this.result_set.getString("group_name"),
+                        this.result_set.getDouble("price"),
+                        this.result_set.getString("description"),
+                        this.result_set.getString("producer"));
+            }
+            this.result_set.close();
+            return product;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
 }

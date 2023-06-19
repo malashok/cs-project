@@ -13,8 +13,9 @@ public class Main {
        // db.createUser("user", "12345");
         //db.createGroup("fruit", "dddd");
         //db.createProduct("test", 300, 28, "desc", "ukraine", "fruit");
+        System.out.println(db.getProductById(21));
         //db.createProduct("test2", 300, 28, "desc", "ukraine", "fruit");
-        System.out.println(db.getAllGroups());
+        //System.out.println(db.getAllGroups());
        // db.updateProduct(8,"apple", 300, 10000, "desc", "ukraine", "fruit");
        //db.deleteProduct("ORANGE");
         //db.deleteGroup("fruit");
