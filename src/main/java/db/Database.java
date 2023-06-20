@@ -282,7 +282,7 @@ public class Database {
         if (!fp.isEmpty()) {
             str += " WHERE ";
             if (fp.getCategory() != null) {
-                str += "CATEGORY = \'" + fp.getCategory() + "\'" + " AND ";
+                str += "GROUP_NAME = \'" + fp.getCategory() + "\'" + " AND ";
             }
             if (fp.getToPrice() != null) {
                 str += "PRICE <= " + fp.getToPrice() + " AND ";

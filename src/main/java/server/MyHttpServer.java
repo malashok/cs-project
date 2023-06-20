@@ -27,7 +27,7 @@ public class MyHttpServer {
 
     //static GroupService group_service = new GroupService(database_manager);
    // static UserService users_service = new UserService(database_manager);
-    public static final int PORT = 5000;
+    public static final int PORT = 5001;
 
     public static void main(String[] args) throws Exception {
         start();
@@ -48,9 +48,9 @@ public class MyHttpServer {
         server.bind(new InetSocketAddress(PORT), 0);
 
         SSLContext sslContext = SSLContext.getInstance("TLS");
-        char[] password = "1234567".toCharArray();
+        char[] password = "yourpassword".toCharArray();
         KeyStore keyStore = KeyStore.getInstance("JKS");
-        FileInputStream keystream = new FileInputStream("src/main/java/sslkey.jks");
+        FileInputStream keystream = new FileInputStream("sslkey.jks");
         keyStore.load(keystream, password);
         KeyManagerFactory keyManager = KeyManagerFactory.getInstance("SunX509");
         keyManager.init(keyStore, password);

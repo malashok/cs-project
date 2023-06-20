@@ -5,7 +5,11 @@ public class Filter {
     private Integer toPrice;
     private Integer fromPrice;
 
-
+    public Filter(String category, Integer toPrice, Integer fromPrice) {
+        this.category = category;
+        this.toPrice = toPrice;
+        this.fromPrice = fromPrice;
+    }
 
     public String getCategory() {
         return category;
