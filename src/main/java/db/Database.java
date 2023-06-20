@@ -264,7 +264,7 @@ public class Database {
         }
         }
 
-    public void addAmountOfProduct(int amount, int id) throws SQLException {
+    public void addAmountOfProducts(int amount, int id) throws SQLException {
         try {
         int previous_amount =  this.getProductById(id).getAmount();
         this.sql_query = this.connection.prepareStatement("UPDATE PRODUCTS SET amount=? WHERE id=?");

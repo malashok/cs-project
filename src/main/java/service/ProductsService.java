@@ -115,4 +115,12 @@ public class ProductsService {
     public void deleteProduct(int product) throws SQLException {
         db.deleteProduct(product);
     }
+
+    public void reduceAmountOfProducts(int amount, int id) throws SQLException {
+        db.reduceAmountOfProducts(amount, id);
+    }
+
+    public void addAmountOfProducts(int amount, int id) throws SQLException {
+        db.addAmountOfProducts(amount, id);
+    }
 }
