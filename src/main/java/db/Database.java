@@ -275,4 +275,39 @@ public class Database {
             e.printStackTrace();
         }
     }
+
+    public ArrayList<Products> filter(Filter fp) {
+        ArrayList<Products> res = new ArrayList<>();
+        String str = "SELECT * FROM PRODUCTS";
+        if (!fp.isEmpty()) {
+            str += " WHERE ";
+            if (fp.getCategory() != null) {
+                str += "CATEGORY = \'" + fp.getCategory() + "\'" + " AND ";
+            }
+            if (fp.getToPrice() != null) {
+                str += "PRICE <= " + fp.getToPrice() + " AND ";
+            }
+            if (fp.getFromPrice() != null) {
+                str += "PRICE >= " + fp.getFromPrice();
+            }
+            str = str.replaceAll("\\s+AND\\s*$", "");
+        }
+        try (PreparedStatement s = connection.prepareStatement(str)) {
+            result_set = s.executeQuery();
+            Products next;
+            while (result_set.next()) {
+                next = new Products(this.result_set.getInt("id"),
+                        this.result_set.getString("name"),
+                        this.result_set.getInt("amount"),
+                        this.result_set.getString("group_name"),
+                        this.result_set.getDouble("price"),
+                        this.result_set.getString("description"),
+                        this.result_set.getString("producer"));
+                res.add(next);
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return res;
+    }
 }
