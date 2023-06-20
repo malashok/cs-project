@@ -92,6 +92,7 @@ public class MyHttpServer {
 
         @Override
         public void handle(HttpExchange exchange) throws IOException {
+            System.out.println("its me");
             InputStream in;
             JSONObject goods;
             JSONObject group;
@@ -108,6 +109,7 @@ public class MyHttpServer {
 
             System.out.println(path + " " + method);
             if (path.startsWith("/api/goods")) {
+                System.out.println("get this");
                 String[] splitted_path = path.split("/");
                 int goodsId = -1;
                 if (splitted_path.length > 3) {
@@ -259,8 +261,10 @@ public class MyHttpServer {
         }
 
         public void send_response(String message, int status_code, HttpExchange exchange) throws IOException {
+            System.out.println("hhhhhhhhhhhh");
             exchange.sendResponseHeaders(status_code, message.getBytes().length);
             OutputStream os = exchange.getResponseBody();
+
             os.write(message.getBytes());
             os.close();
         }
