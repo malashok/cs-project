@@ -53,7 +53,7 @@ public class Database {
             );
             this.sql_query.execute();
 
-        } catch (ClassNotFoundException e) {
+        } catch (Exception e) {
             e.printStackTrace();
             System.exit(0);
         }
@@ -67,7 +67,7 @@ public class Database {
             this.sql_query.execute();
 
         } catch (SQLException e) {
-            this.sql_query.getConnection().rollback();
+           System.out.println(new SQLException(e));
         }
     }
 
@@ -101,10 +101,10 @@ public class Database {
         }
     }
 
-    public void deleteProduct(int name) throws SQLException {
+    public void deleteProduct(int id) throws SQLException {
         try {
         this.sql_query = this.connection.prepareStatement("DELETE FROM PRODUCTS WHERE id=?");
-        this.sql_query.setInt(1, name);
+        this.sql_query.setInt(1, id);
             this.sql_query.execute();
         } catch (SQLException e) {
             e.printStackTrace();
@@ -112,10 +112,10 @@ public class Database {
         }
     }
 
-    public void deleteGroup(String name) throws SQLException {
+    public void deleteGroup(int id) throws SQLException {
         try {
-        this.sql_query = this.connection.prepareStatement("DELETE FROM GROUPS WHERE name=?");
-        this.sql_query.setString(1, name);
+        this.sql_query = this.connection.prepareStatement("DELETE FROM GROUPS WHERE id=?");
+        this.sql_query.setInt(1, id);
             this.sql_query.execute();
         } catch (SQLException e) {
             e.printStackTrace();
@@ -248,4 +248,31 @@ public class Database {
         }
     }
 
+    public void reduceAmountOfProducts(int amount, int id) throws SQLException {
+        try {
+        int previous_amount = this.getProductById(id).getAmount();
+        if (amount > previous_amount) {
+            throw new RuntimeException("Error when reduce products!");
+        }
+        this.sql_query = this.connection.prepareStatement("UPDATE PRODUCTS SET amount=? WHERE id=?");
+        this.sql_query.setInt(1, previous_amount - amount);
+        this.sql_query.setInt(2, id);
+            this.sql_query.execute();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            this.sql_query.getConnection().rollback();
+        }
+        }
+
+    public void addAmountOfProduct(int amount, int id) throws SQLException {
+        try {
+        int previous_amount =  this.getProductById(id).getAmount();
+        this.sql_query = this.connection.prepareStatement("UPDATE PRODUCTS SET amount=? WHERE id=?");
+        this.sql_query.setInt(1, previous_amount + amount);
+        this.sql_query.setInt(2, id);
+            this.sql_query.execute();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
 }
