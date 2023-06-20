@@ -21,7 +21,20 @@ public class ProductsService {
         Products products = db.getProductByName(name);
         JSONObject productJson = new JSONObject();
         productJson.put("group_name", products.getGroup());
-        productJson.put("products_name", name);
+        productJson.put("name", name);
+        productJson.put("amount", products.getAmount());
+        productJson.put("price", products.getPrice());
+        productJson.put("description", products.getDescription());
+        productJson.put("producer", products.getProducer());
+        productJson.put("id", products.getId());
+        return productJson;
+    }
+
+    public JSONObject getProductById(int name) {
+        Products products = db.getProductById(name);
+        JSONObject productJson = new JSONObject();
+        productJson.put("name", products.getName());
+        productJson.put("group_name", products.getGroup());
         productJson.put("amount", products.getAmount());
         productJson.put("price", products.getPrice());
         productJson.put("description", products.getDescription());
@@ -38,7 +51,7 @@ public class ProductsService {
         while(!products.isEmpty()){
             JSONObject good_json = new JSONObject();
             good_json.put("group_name", products.get(i).getGroup());
-            good_json.put("products_name", products.get(i).getName());
+            good_json.put("name", products.get(i).getName());
             good_json.put("amount", products.get(i).getAmount());
             good_json.put("price", products.get(i).getPrice());
             good_json.put("description", products.get(i).getDescription());
@@ -99,7 +112,7 @@ public class ProductsService {
 //        }
     }
 
-    public void deleteProduct(String product) throws SQLException {
+    public void deleteProduct(int product) throws SQLException {
         db.deleteProduct(product);
     }
 }

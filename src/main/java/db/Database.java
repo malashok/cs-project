@@ -82,6 +82,7 @@ public class Database {
         this.sql_query.setString(6, producer);
 
             this.sql_query.execute();
+            //return (int) this.sql_query.getGeneratedKeys().getLong(1);
         } catch (SQLException e) {
             //this.sql_query.getConnection().rollback();
             throw new SQLException(e);
@@ -100,10 +101,10 @@ public class Database {
         }
     }
 
-    public void deleteProduct(String name) throws SQLException {
+    public void deleteProduct(int name) throws SQLException {
         try {
-        this.sql_query = this.connection.prepareStatement("DELETE FROM PRODUCTS WHERE name=?");
-        this.sql_query.setString(1, name);
+        this.sql_query = this.connection.prepareStatement("DELETE FROM PRODUCTS WHERE id=?");
+        this.sql_query.setInt(1, name);
             this.sql_query.execute();
         } catch (SQLException e) {
             e.printStackTrace();
