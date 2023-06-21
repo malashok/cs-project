@@ -56,7 +56,7 @@ public class ProductsService {
             good_json.put("price", products.get(i).getPrice());
             good_json.put("description", products.get(i).getDescription());
             good_json.put("producer", products.get(i).getProducer());
-            good_json.put("products_id", products.get(i).getId());
+            good_json.put("id", products.get(i).getId());
             products.remove(i);
             products_array.add(good_json);
         }
