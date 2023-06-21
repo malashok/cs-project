@@ -4,22 +4,22 @@ import java.util.Objects;
 
 public class User {
     private int id;
-    private String username;
+    private String name;
     private String password;
 
-    public User(String username, String password) {
-        this.username = username;
+    public User(String name, String password) {
+        this.name = name;
         this.password = password;
     }
 
-    public User(int id, String username, String password) {
+    public User(int id, String name, String password) {
         this.id = id;
-        this.username = username;
+        this.name = name;
         this.password = password;
     }
 
-    public String getUsername() {
-        return this.username;
+    public String getname() {
+        return this.name;
     }
     public String getPassword() {
         return this.password;
@@ -32,7 +32,7 @@ public class User {
         if (!(o instanceof User))
             return false;
         User user = (User) o;
-        return (Objects.equals(this.username, this.getUsername())) && (Objects.equals(this.password, this.getPassword()));
+        return (Objects.equals(this.name, this.getname())) && (Objects.equals(this.password, this.getPassword()));
     }
 
 }

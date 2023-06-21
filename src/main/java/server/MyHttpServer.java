@@ -3,10 +3,14 @@ package server;
 import com.sun.net.httpserver.*;
 
 import db.Database;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.security.Keys;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import service.ProductsService;
+import service.UserService;
 
 import javax.net.ssl.*;
 import java.io.*;
@@ -26,7 +30,7 @@ public class MyHttpServer {
     static ProductsService goods_service = new ProductsService(database_manager);
 
     //static GroupService group_service = new GroupService(database_manager);
-   // static UserService users_service = new UserService(database_manager);
+    static UserService userService = new UserService(database_manager);
     public static final int PORT = 5001;
 
     public static void main(String[] args) throws Exception {
@@ -92,7 +96,6 @@ public class MyHttpServer {
 
         @Override
         public void handle(HttpExchange exchange) throws IOException {
-            System.out.println("its me");
             InputStream in;
             JSONObject goods;
             JSONObject group;
@@ -171,29 +174,30 @@ public class MyHttpServer {
                 }
 
             }
-//            if (path.startsWith("/login") && Objects.equals("POST", method)) {
-//                try {
-//                    in = exchange.getRequestBody();
-//                    JSONObject user_json = (JSONObject) json_parser.parse(new InputStreamReader(in, StandardCharsets.UTF_8));
-//
-//                    boolean verified = users_service.verify_login(user_json);
-//                    if (verified) {
-//                        String jwt = JWT.createJWT((String) user_json.get("username"));
-//                        exchange.getResponseHeaders().add("Authorization", "Bearer " + jwt);
-//                        JSONObject jwt_json = new JSONObject();
-//                        jwt_json.put("jwt", jwt);
-//                        send_response(jwt_json.toJSONString(), 200, exchange);
-//                    } else {
-//                        send_response("401: Unauthorized - authentication failed", 401, exchange);
-//                    }
-//                } catch (ParseException e) {
-//                    throw new RuntimeException(e);
-//                } catch (SQLException e) {
-//                    throw new RuntimeException(e);
-//                } catch (NoSuchAlgorithmException e) {
-//                    throw new RuntimeException(e);
-//                }
-//            }
+
+            if (path.startsWith("/login") && Objects.equals("POST", method)) {
+                try {
+                    in = exchange.getRequestBody();
+                    JSONObject inputUser = (JSONObject) json_parser.parse(new InputStreamReader(in, StandardCharsets.UTF_8));
+                    boolean verified = userService.login(inputUser);
+
+                    if (verified) {
+                        String jwt = jwt((String) inputUser.get("name"));
+                        exchange.getResponseHeaders().add("Authorization", "Bearer " + jwt);
+                        JSONObject jwt_json = new JSONObject();
+                        jwt_json.put("jwt", jwt);
+                        send_response(jwt_json.toJSONString(), 200, exchange);
+                    } else {
+                        send_response("401: Unauthorized - authentication failed", 401, exchange);
+                    }
+                } catch (ParseException e) {
+                    throw new RuntimeException(e);
+                } catch (SQLException e) {
+                    throw new RuntimeException(e);
+                } catch (NoSuchAlgorithmException e) {
+                    throw new RuntimeException(e);
+                }
+            }
             /*if(path.startsWith("/api/group")){
                 String[] splitted_path = path.split("/");
                 String group_name = "";
@@ -260,6 +264,9 @@ public class MyHttpServer {
             send_response("404: Not Found", 404, exchange);
         }
 
+        public static String jwt(String name) {
+            return Jwts.builder().setSubject(name).signWith(Keys.secretKeyFor(SignatureAlgorithm.HS256)).compact();
+        }
         public void send_response(String message, int status_code, HttpExchange exchange) throws IOException {
             System.out.println("hhhhhhhhhhhh");
             exchange.sendResponseHeaders(status_code, message.getBytes().length);
@@ -330,11 +337,11 @@ public class MyHttpServer {
 //                String jwt = String.valueOf(httpExchange.getRequestHeaders().getFirst("Authorization")).replace("Bearer ", "");
 //                if(jwt.equals("null"))
 //                    return new Failure(403);
-//                String username = JWT.extractUsername(jwt);
-//                User user = users_service.get_user_by_username(username);
+//                String name = JWT.extractname(jwt);
+//                User user = users_service.get_user_by_name(name);
 //                if (user == null) return new Failure(403);
 //                else
-//                    return new Success(new HttpPrincipal(user.getUsername(), "realm"));
+//                    return new Success(new HttpPrincipal(user.getname(), "realm"));
 //            } catch (SQLException e) {
 //                throw new RuntimeException(e);
 //            }

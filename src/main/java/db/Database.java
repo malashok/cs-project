@@ -93,7 +93,7 @@ public class Database {
         try {
         this.sql_query = this.connection.prepareStatement("INSERT INTO USERS(name, password) VALUES (?, ?)");
         this.sql_query.setString(1, name);
-        this.sql_query.setString(2, PasswordEncrypt.encrypt_password(password));
+        this.sql_query.setString(2, PasswordEncrypt.encrypt(password));
 
             this.sql_query.execute();
         } catch (SQLException e) {
@@ -309,5 +309,26 @@ public class Database {
             throw new RuntimeException(e);
         }
         return res;
+    }
+
+    public User getUserByName(String name) {
+        try {
+            this.sql_query = this.connection.prepareStatement("SELECT * FROM USERS WHERE NAME=?");
+            this.sql_query.setString(1, name);
+            this.result_set = this.sql_query.executeQuery();
+            boolean valid = this.result_set.next();
+            if (valid == false) {
+                return null;
+            }
+            User user = new User(
+                    this.result_set.getInt("id"),
+                    this.result_set.getString("name"),
+                    this.result_set.getString("password")
+            );
+            this.result_set.close();
+            return user;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

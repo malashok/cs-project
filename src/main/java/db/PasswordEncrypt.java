@@ -7,7 +7,7 @@ import java.security.NoSuchAlgorithmException;
 public class PasswordEncrypt {
         public static final String encryption_algorithm = "MD5";
 
-        public static String encrypt_password(String password) throws NoSuchAlgorithmException {
+        public static String encrypt(String password) throws NoSuchAlgorithmException {
             MessageDigest md = MessageDigest.getInstance(encryption_algorithm);
             md.update(password.getBytes());
             byte[] digest = md.digest();

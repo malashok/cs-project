@@ -9,10 +9,10 @@ import java.sql.SQLException;
 public class Main {
     public static void main(String[] args) throws SQLException, NoSuchAlgorithmException {
         Database db = new Database();
-        //db.createUser("user", "12345");
+        db.createUser("1234", "1234");
         //db.createGroup("fruit", "dddd");
         //db.createProduct("test", 300, 28, "desc", "ukraine", "fruit");
-        System.out.println(db.filter(new Filter(null, null, null)));
+        //System.out.println(db.filter(new Filter(null, null, null)));
         //System.out.println(db.getProductById(21));
         //db.createProduct("test2", 300, 28, "desc", "ukraine", "fruit");
        // System.out.println(db.getAllGroups());
