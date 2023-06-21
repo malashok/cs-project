@@ -30,17 +30,17 @@ public class MyHttpServer {
     public static final int PORT = 5001;
 
     public static void main(String[] args) throws Exception {
-        start();
+        start_http();
     }
 
     public static void start_http() throws Exception {
-//        http_server = HttpServer.create();
-//        http_server.bind(new InetSocketAddress(PORT), 0);
-//        HttpContext context = http_server.createContext("/", new RequestHandler());
-//        context.setAuthenticator(new Auth());
-//        http_server.setExecutor(Executors.newFixedThreadPool(8));
-//        http_server.start();
-//        System.out.println("Sever started on "+ PORT + " port...");
+        http_server = HttpServer.create();
+        http_server.bind(new InetSocketAddress(PORT), 0);
+        HttpContext context = http_server.createContext("/", new RequestHandler());
+        //context.setAuthenticator(new Auth());
+        http_server.setExecutor(Executors.newFixedThreadPool(8));
+        http_server.start();
+        System.out.println("Sever started on "+ PORT + " port...");
     }
 
     public static void start() throws Exception {
@@ -48,15 +48,15 @@ public class MyHttpServer {
         server.bind(new InetSocketAddress(PORT), 0);
 
         SSLContext sslContext = SSLContext.getInstance("TLS");
-        char[] password = "yourpassword".toCharArray();
-        KeyStore keyStore = KeyStore.getInstance("JKS");
-        FileInputStream keystream = new FileInputStream("sslkey.jks");
-        keyStore.load(keystream, password);
-        KeyManagerFactory keyManager = KeyManagerFactory.getInstance("SunX509");
-        keyManager.init(keyStore, password);
-        TrustManagerFactory trustManager = TrustManagerFactory.getInstance("SunX509");
-        trustManager.init(keyStore);
-        sslContext.init(keyManager.getKeyManagers(), trustManager.getTrustManagers(), null);
+//        char[] password = "yourpassword".toCharArray();
+//        KeyStore keyStore = KeyStore.getInstance("JKS");
+//        FileInputStream keystream = new FileInputStream("sslkey.jks");
+//        keyStore.load(keystream, password);
+//        KeyManagerFactory keyManager = KeyManagerFactory.getInstance("SunX509");
+//        keyManager.init(keyStore, password);
+//        TrustManagerFactory trustManager = TrustManagerFactory.getInstance("SunX509");
+//        trustManager.init(keyStore);
+//        sslContext.init(keyManager.getKeyManagers(), trustManager.getTrustManagers(), null);
         server.setHttpsConfigurator(new HttpsConfigurator(sslContext) {
             public void configure(HttpsParameters params) {
                 try {
