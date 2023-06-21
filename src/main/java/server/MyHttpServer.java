@@ -3,6 +3,7 @@ package server;
 import com.sun.net.httpserver.*;
 
 import db.Database;
+import db.User;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
@@ -16,6 +17,7 @@ import javax.net.ssl.*;
 import java.io.*;
 import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
+import java.security.Key;
 import java.security.KeyStore;
 import java.security.NoSuchAlgorithmException;
 import java.sql.SQLException;
@@ -182,13 +184,15 @@ public class MyHttpServer {
                     boolean verified = userService.login(inputUser);
 
                     if (verified) {
-                        String jwt = jwt((String) inputUser.get("name"));
+                        String jwt = JWT.createJwt((String) inputUser.get("name"));
                         exchange.getResponseHeaders().add("Authorization", "Bearer " + jwt);
                         JSONObject jwt_json = new JSONObject();
-                        jwt_json.put("jwt", jwt);
+                        //jwt_json.put("jwt", jwt);
+                        //send_response(jwt_json.toJSONString(), 200, exchange);
+                        jwt_json.put("name", JWT.takeNameFromJwt(jwt));
                         send_response(jwt_json.toJSONString(), 200, exchange);
                     } else {
-                        send_response("401: Unauthorized - authentication failed", 401, exchange);
+                        send_response("401: Authentication failed", 401, exchange);
                     }
                 } catch (ParseException e) {
                     throw new RuntimeException(e);
@@ -263,12 +267,8 @@ public class MyHttpServer {
             }*/
             send_response("404: Not Found", 404, exchange);
         }
-
-        public static String jwt(String name) {
-            return Jwts.builder().setSubject(name).signWith(Keys.secretKeyFor(SignatureAlgorithm.HS256)).compact();
-        }
         public void send_response(String message, int status_code, HttpExchange exchange) throws IOException {
-            System.out.println("hhhhhhhhhhhh");
+            System.out.println("send response");
             exchange.sendResponseHeaders(status_code, message.getBytes().length);
             OutputStream os = exchange.getResponseBody();
 
@@ -324,29 +324,29 @@ public class MyHttpServer {
         }
     }
 
-//    static class Auth extends Authenticator {
-//        @Override
-//        public Result authenticate(HttpExchange httpExchange) {
-//            try {
-//                String path = httpExchange.getRequestURI().getPath();
-//                String method = httpExchange.getRequestMethod();
-//                if (path.equals("/login"))
-//                    return new Success(new HttpPrincipal("Default", "realm"));
-//                if (method.equalsIgnoreCase("OPTIONS"))
-//                    return new Success(new HttpPrincipal("Default", "realm"));
-//                String jwt = String.valueOf(httpExchange.getRequestHeaders().getFirst("Authorization")).replace("Bearer ", "");
-//                if(jwt.equals("null"))
-//                    return new Failure(403);
-//                String name = JWT.extractname(jwt);
-//                User user = users_service.get_user_by_name(name);
-//                if (user == null) return new Failure(403);
-//                else
-//                    return new Success(new HttpPrincipal(user.getname(), "realm"));
-//            } catch (SQLException e) {
-//                throw new RuntimeException(e);
-//            }
-//        }
-//    }
+   /* static class Auth extends Authenticator {
+        @Override
+        public Result authenticate(HttpExchange httpExchange) {
+            try {
+                String path = httpExchange.getRequestURI().getPath();
+                String method = httpExchange.getRequestMethod();
+                if (path.equals("/login"))
+                    return new Success(new HttpPrincipal("Default", "realm"));
+                if (method.equalsIgnoreCase("OPTIONS"))
+                    return new Success(new HttpPrincipal("Default", "realm"));
+                String jwt = String.valueOf(httpExchange.getRequestHeaders().getFirst("Authorization")).replace("Bearer ", "");
+                if(jwt.equals("null"))
+                    return new Failure(403);
+                String name = JWT.takeNameFromJwt(jwt);
+                User user = userService.getUserByName(name);
+                if (user == null) return new Failure(403);
+                else
+                    return new Success(new HttpPrincipal(user.getName(), "realm"));
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }*/
 
 
 }

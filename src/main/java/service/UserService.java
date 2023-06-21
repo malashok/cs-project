@@ -17,9 +17,9 @@ public class UserService {
     }
 
     public boolean login(JSONObject user) throws SQLException, NoSuchAlgorithmException {
-        String name = (String) user.get("name");
+        String login = (String) user.get("name");
         String password = (String) user.get("password");
-        User userInDb = this.getUserByName(name);
+        User userInDb = this.getUserByName(login);
         return Objects.equals(userInDb.getPassword(), PasswordEncrypt.encrypt(password));
     }
 }

@@ -7,18 +7,18 @@ public class User {
     private String name;
     private String password;
 
-    public User(String name, String password) {
-        this.name = name;
+    public User(String login, String password) {
+        this.name = login;
         this.password = password;
     }
 
-    public User(int id, String name, String password) {
+    public User(int id, String login, String password) {
         this.id = id;
-        this.name = name;
+        this.name = login;
         this.password = password;
     }
 
-    public String getname() {
+    public String getName() {
         return this.name;
     }
     public String getPassword() {
@@ -32,7 +32,7 @@ public class User {
         if (!(o instanceof User))
             return false;
         User user = (User) o;
-        return (Objects.equals(this.name, this.getname())) && (Objects.equals(this.password, this.getPassword()));
+        return (Objects.equals(this.name, this.getName())) && (Objects.equals(this.password, this.getPassword()));
     }
 
 }
