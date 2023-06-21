@@ -33,8 +33,8 @@ public class GroupService {
         while(!groups.isEmpty()){
             JSONObject group_json = new JSONObject();
             group_json.put("name", groups.get(i).getName());
-            group_json.put("about", groups.get(i).getDescription());
-            group_json.put("group_id", groups.get(i).getId());
+            group_json.put("desc", groups.get(i).getDescription());
+            group_json.put("id", groups.get(i).getId());
             groups.remove(i);
             groups_array.add(group_json);
         }

@@ -60,7 +60,7 @@ public class ProductsService {
             products.remove(i);
             products_array.add(good_json);
         }
-        productJson.put("result", products_array);
+        productJson.put("result",products_array);
         return productJson;
     }
 

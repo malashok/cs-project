@@ -9,6 +9,7 @@ import io.jsonwebtoken.security.Keys;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
+import service.GroupService;
 import service.ProductsService;
 import service.UserService;
 
@@ -29,7 +30,7 @@ public class MyHttpServer {
     static Database database_manager = new Database();
     static ProductsService goods_service = new ProductsService(database_manager);
 
-    //static GroupService group_service = new GroupService(database_manager);
+    static GroupService group_service = new GroupService(database_manager);
     static UserService userService = new UserService(database_manager);
     public static final int PORT = 5001;
 
@@ -198,7 +199,7 @@ public class MyHttpServer {
                     throw new RuntimeException(e);
                 }
             }
-            /*if(path.startsWith("/api/group")){
+            if(path.startsWith("/api/group")){
                 String[] splitted_path = path.split("/");
                 String group_name = "";
                 if (splitted_path.length > 3) {
@@ -213,9 +214,9 @@ public class MyHttpServer {
                     switch (method) {
                         case "GET":
                             if (group_name != "") {
-                                send_response(group_service.get_group_by_name(group_name).toJSONString(), 200, exchange);
+                                //send_response(group_service.getAllGroups(group_name).toJSONString(), 200, exchange);
                             } else {
-                                send_response(group_service.get_groups().toJSONString(), 200, exchange);
+                                send_response(group_service.getAllGroups().toJSONString(), 200, exchange);
                             }
                             break;
                         case "PUT":
@@ -226,8 +227,8 @@ public class MyHttpServer {
                                 send_response("409: Conflict - your data contains errors", 409, exchange);
                                 return;
                             }
-                            JSONObject group_id = group_service.create_new_group(group);
-                            send_response(group_id.toJSONString(), 201, exchange);
+                            group_service.createGroup(group);
+                            send_response("Group added.", 201, exchange);
                             return;
                         case "POST":
                             if (group_name == "") {
@@ -240,7 +241,7 @@ public class MyHttpServer {
                                 send_response("409: Conflict - your data contains errors", 409, exchange);
                                 return;
                             }
-                            group_service.update_group(group_name, group);
+                            group_service.updateGroup(Integer.parseInt(group_name), group);
                             send_response("204: Updated object", 204, exchange);
                             break;
                         case "DELETE":
@@ -248,7 +249,7 @@ public class MyHttpServer {
                                 send_response("400: Bad Request - Unspecified ID in query for this endpoint", 400, exchange);
                             }
 
-                            group_service.delete_group(group_name);
+                            group_service.deleteGroup(Integer.valueOf(group_name));
                             send_response("204: Deleted object", 204, exchange);
                             break;
                         default:
@@ -260,7 +261,7 @@ public class MyHttpServer {
                     throw new RuntimeException(e);
                 }
 
-            }*/
+            }
             send_response("404: Not Found", 404, exchange);
         }
 
@@ -268,10 +269,8 @@ public class MyHttpServer {
             return Jwts.builder().setSubject(name).signWith(Keys.secretKeyFor(SignatureAlgorithm.HS256)).compact();
         }
         public void send_response(String message, int status_code, HttpExchange exchange) throws IOException {
-            System.out.println("hhhhhhhhhhhh");
             exchange.sendResponseHeaders(status_code, message.getBytes().length);
             OutputStream os = exchange.getResponseBody();
-
             os.write(message.getBytes());
             os.close();
         }
