@@ -165,8 +165,10 @@ public class MyHttpServer {
                             if (goodsId == -1) {
                                 send_response("400: Bad Request - Unspecified name in query for this endpoint", 400, exchange);
                             }
+                            System.out.println(exchange.getRequestBody());
                             in = exchange.getRequestBody();
                             goods = (JSONObject) json_parser.parse(new InputStreamReader(in, StandardCharsets.UTF_8));
+                            System.out.println(goods);
 //                            if (!validate_goods(goods, method)) {
 //                                send_response("409: Conflict - your data contains errors", 409, exchange);
 //                                return;
@@ -222,10 +224,10 @@ public class MyHttpServer {
             }
             if(path.startsWith("/api/group")){
                 String[] splitted_path = path.split("/");
-                String group_name = "";
+                int group_name = -1;
                 if (splitted_path.length > 3) {
                     try {
-                        group_name = String.valueOf(splitted_path[3]);
+                        group_name = Integer.parseInt(String.valueOf(splitted_path[3]));
                     } catch(NumberFormatException e) {
                         send_response("404: Resource not found", 404, exchange);
                         return;
@@ -234,43 +236,39 @@ public class MyHttpServer {
                 try {
                     switch (method) {
                         case "GET":
-                            if (group_name != "") {
-                                //send_response(group_service.get_group_by_name(group_name).toJSONString(), 200, exchange);
+                            if (group_name != -1) {
+                                send_response(group_service.getGroupById(group_name).toJSONString(), 200, exchange);
                             } else {
                                 send_response(group_service.getAllGroups().toJSONString(), 200, exchange);
                             }
                             break;
-                        case "PUT":
+                        case "POST":
                             in = exchange.getRequestBody();
                             group = (JSONObject) json_parser.parse(new InputStreamReader(in, StandardCharsets.UTF_8));
 
-                            if (!validate_group(group, method)) {
-                                send_response("409: Conflict - your data contains errors", 409, exchange);
-                                return;
-                            }
+//                            if (!validate_group(group, method)) {
+//                                send_response("409: Conflict - your data contains errors", 409, exchange);
+//                                return;
+//                            }
                             group_service.createGroup(group);
                             send_response("Group was added", 201, exchange);
                             return;
-                        case "POST":
-                            if (group_name == "") {
+                        case "PATCH":
+                            if (group_name == -1) {
                                 send_response("400: Bad Request - Unspecified ID in query for this endpoint", 400, exchange);
                             }
                             in = exchange.getRequestBody();
                             group = (JSONObject) json_parser.parse(new InputStreamReader(in, StandardCharsets.UTF_8));
 
-                            if (!validate_group(group, method)) {
-                                send_response("409: Conflict - your data contains errors", 409, exchange);
-                                return;
-                            }
-                            group_service.updateGroup(Integer.parseInt(group_name), group);
+                            group_service.updateGroup(group_name, group);
                             send_response("204: Updated object", 204, exchange);
                             break;
                         case "DELETE":
-                            if (group_name == "") {
+                            if (group_name == -1) {
                                 send_response("400: Bad Request - Unspecified ID in query for this endpoint", 400, exchange);
                             }
 
-                            group_service.deleteGroup(Integer.parseInt(group_name));
+                            group_service.deleteGroup(group_name);
                             send_response("204: Deleted object", 204, exchange);
                             break;
                         default:

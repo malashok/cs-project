@@ -125,6 +125,7 @@ public class Database {
 
     public void updateProduct(int id, String name, double price, int amount, String description, String producer, String groupName) throws SQLException {
         try{
+            System.out.println(description);
         this.sql_query = this.connection.prepareStatement("UPDATE PRODUCTS SET NAME = ? , "
                 + "PRICE = ? , "
                 + "AMOUNT = ? , "
@@ -132,9 +133,10 @@ public class Database {
                 + "DESCRIPTION = ?,"
                 + "PRODUCER = ? "
                 + "WHERE ID = ?");
+
             this.sql_query.setString(1, name);
             this.sql_query.setDouble(2, price);
-            this.sql_query.setInt(3, amount);
+            this.sql_query.setInt(3, Integer.parseInt("10"));
             this.sql_query.setString(4, groupName);
             this.sql_query.setString(5, description);
             this.sql_query.setString(6, producer);
@@ -243,6 +245,24 @@ public class Database {
             }
             this.result_set.close();
             return product;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public Group getGroupById(int id) {
+        try {
+            this.sql_query = this.connection.prepareStatement("SELECT * FROM GROUPS WHERE id=?");
+            this.sql_query.setInt(1, id);
+            this.result_set = this.sql_query.executeQuery();
+            Group group = null;
+            while(this.result_set.next()){
+                group = new Group(this.result_set.getInt("id"),
+                        this.result_set.getString("name"),
+                        this.result_set.getString("description"));
+            }
+            this.result_set.close();
+            return group;
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
