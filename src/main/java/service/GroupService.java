@@ -3,6 +3,7 @@ package service;
 
 import db.Database;
 import db.Group;
+import db.Products;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
@@ -16,14 +17,14 @@ public class GroupService {
         this.db = db;
     }
 
-//    public JSONObject get_group_by_name(String name) {
-//        List<Group> groups = db.пуе("name", name);
-//        JSONObject groups_json = new JSONObject();
-//        groups_json.put("group_name", groups.get(0).getName());
-//        groups_json.put("about", groups.get(0).getAbout());
-//        groups_json.put("group_id", groups.get(0).getId());
-//        return groups_json;
-//    }
+    public JSONObject getGroupById(int name) {
+        Group gr = db.getGroupById(name);
+        JSONObject groups_json = new JSONObject();
+        groups_json.put("name", gr.getName());
+        groups_json.put("description", gr.getDescription());
+        groups_json.put("id", gr.getId());
+        return groups_json;
+    }
 
     public JSONObject getAllGroups() {
         List<Group> groups = db.getAllGroups();
@@ -33,7 +34,7 @@ public class GroupService {
         while(!groups.isEmpty()){
             JSONObject group_json = new JSONObject();
             group_json.put("name", groups.get(i).getName());
-            group_json.put("desc", groups.get(i).getDescription());
+            group_json.put("description", groups.get(i).getDescription());
             group_json.put("id", groups.get(i).getId());
             groups.remove(i);
             groups_array.add(group_json);
@@ -44,7 +45,7 @@ public class GroupService {
 
     public void createGroup(JSONObject group_json) throws SQLException {
         String name = (String) group_json.get("name");
-        String about = (String) group_json.get("about");
+        String about = (String) group_json.get("description");
         db.createGroup(name, about);
     }
 
