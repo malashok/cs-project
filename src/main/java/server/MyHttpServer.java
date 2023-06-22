@@ -140,9 +140,7 @@ public class MyHttpServer {
                                 send_response("409: Conflict - your data contains errors", 409, exchange);
                                 return;
                             }
-
                             goods_service.createProduct(goods);
-
                             send_response("204: Updated object", 204, exchange);
 
                         }
@@ -173,6 +171,7 @@ public class MyHttpServer {
 //                                send_response("409: Conflict - your data contains errors", 409, exchange);
 //                                return;
 //                            }
+                            System.out.println(goods);
                             goods_service.updateProduct(goodsId, goods);
                             send_response("204: Updated object", 204, exchange);
                         }

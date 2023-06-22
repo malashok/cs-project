@@ -70,7 +70,7 @@ public class ProductsService {
         try {
             db.createProduct(
                     (String) productJson.get("name"),
-                    (Double) productJson.get("price"),
+                    Double.parseDouble(productJson.get("price").toString()),
                     Integer.parseInt(productJson.get("amount").toString()),
                     (String) productJson.get("description"),
                     (String) productJson.get("producer"),
@@ -83,7 +83,7 @@ public class ProductsService {
 
     public void updateProduct(int id, JSONObject productJson) throws SQLException {
         //Products products = db.getProductById(id).get(0);
-        db.updateProduct(id, (String) productJson.get("name"), (Double) productJson.get("price"), Integer.parseInt(productJson.get("amount").toString()), (String) productJson.get("description"), (String) productJson.get("producer"), (String) productJson.get("group_name"));
+            db.updateProduct(id, (String) productJson.get("name"), Double.parseDouble(productJson.get("price").toString()), Integer.parseInt(productJson.get("amount").toString()), (String) productJson.get("description"), (String) productJson.get("producer"), (String) productJson.get("group_name"));
 //        if (productJson.containsKey("amount")) {
 //            long amount = (long) productJson.get("amount");
 //            if (products.getAmount() > amount) {
