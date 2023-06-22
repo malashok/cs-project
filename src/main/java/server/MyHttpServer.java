@@ -108,7 +108,7 @@ public class MyHttpServer {
 
             exchange.getResponseHeaders().add("Access-Control-Allow-Origin", "*");
             if (method.equalsIgnoreCase("OPTIONS")) {
-                exchange.getResponseHeaders().add("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+                exchange.getResponseHeaders().add("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, PATCH, OPTIONS");
                 exchange.getResponseHeaders().add("Access-Control-Allow-Headers", "Content-Type,Authorization");
                 exchange.sendResponseHeaders(204, -1);
             }
@@ -146,16 +146,16 @@ public class MyHttpServer {
                             goods_service.createProduct(goods);
                             send_response("Product added", 201, exchange);
                             return;
-                        case "POST":
+                        case "PATCH":
                             if (goodsId == -1) {
                                 send_response("400: Bad Request - Unspecified name in query for this endpoint", 400, exchange);
                             }
                             in = exchange.getRequestBody();
                             goods = (JSONObject) json_parser.parse(new InputStreamReader(in, StandardCharsets.UTF_8));
-                            if (!validate_goods(goods, method)) {
-                                send_response("409: Conflict - your data contains errors", 409, exchange);
-                                return;
-                            }
+//                            if (!validate_goods(goods, method)) {
+//                                send_response("409: Conflict - your data contains errors", 409, exchange);
+//                                return;
+//                            }
                             goods_service.updateProduct(goodsId, goods);
                             send_response("204: Updated object", 204, exchange);
                             break;
@@ -318,7 +318,7 @@ public class MyHttpServer {
         }
 
         public boolean validate_group(JSONObject groups, String method) {
-            if (groups.containsKey("about") && ((String) groups.get("about")).length() != 0)
+            if (groups.containsKey("description") && ((String) groups.get("description")).length() != 0)
                 return true;
 
             return false;
