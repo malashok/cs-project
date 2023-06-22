@@ -22,6 +22,7 @@ import java.security.Key;
 import java.security.KeyStore;
 import java.security.NoSuchAlgorithmException;
 import java.sql.SQLException;
+import java.util.Arrays;
 import java.util.Objects;
 import java.util.concurrent.Executors;
 
@@ -117,6 +118,7 @@ public class MyHttpServer {
             if (path.startsWith("/api/goods")) {
                 System.out.println("get this");
                 String[] splitted_path = path.split("/");
+                System.out.println(Arrays.toString(splitted_path));
                 int goodsId = -1;
                 if (splitted_path.length > 3) {
                     try {
@@ -128,25 +130,40 @@ public class MyHttpServer {
                 }
                 try {
                     switch (method) {
-                        case "GET":
+                        case "POST" -> {
+                            in = exchange.getRequestBody();
+                            goods = (JSONObject) json_parser.parse(new InputStreamReader(in, StandardCharsets.UTF_8));
+                            System.out.println("goods" + goods);
+
+                            if (!validate_goods(goods, method)) {
+                                System.out.println("invalid");
+                                send_response("409: Conflict - your data contains errors", 409, exchange);
+                                return;
+                            }
+
+                            goods_service.createProduct(goods);
+
+                            send_response("204: Updated object", 204, exchange);
+
+                        }
+                        case "GET" -> {
                             if (goodsId != -1) {
                                 send_response(goods_service.getProductById(goodsId).toJSONString(), 200, exchange);
                             } else {
                                 send_response(goods_service.getAll().toJSONString(), 200, exchange);
                             }
-                            break;
-                        case "PUT":
+                        }
+                        case "PUT" -> {
                             in = exchange.getRequestBody();
                             goods = (JSONObject) json_parser.parse(new InputStreamReader(in, StandardCharsets.UTF_8));
-
                             if (!validate_goods(goods, method)) {
                                 send_response("409: Conflict - your data contains errors", 409, exchange);
                                 return;
                             }
                             goods_service.createProduct(goods);
                             send_response("Product added", 201, exchange);
-                            return;
-                        case "PATCH":
+                        }
+                        case "PATCH" -> {
                             if (goodsId == -1) {
                                 send_response("400: Bad Request - Unspecified name in query for this endpoint", 400, exchange);
                             }
@@ -158,17 +175,18 @@ public class MyHttpServer {
 //                            }
                             goods_service.updateProduct(goodsId, goods);
                             send_response("204: Updated object", 204, exchange);
-                            break;
-                        case "DELETE":
+                        }
+                        case "DELETE" -> {
                             if (goodsId == -1) {
                                 send_response("400: Bad Request - Unspecified name in query for this endpoint", 400, exchange);
                             }
 
                             goods_service.deleteProduct(goodsId);
                             send_response("204: Deleted object", 204, exchange);
-                            break;
-                        default:
-                            break;
+                        }
+                        default -> {
+
+                        }
                     }
                 } catch (ParseException e) {
                     throw new RuntimeException(e);
@@ -279,42 +297,39 @@ public class MyHttpServer {
 
         public boolean validate_goods(JSONObject goods, String method) {
             switch (method) {
-                case "PUT":
-                    System.out.println(goods.toString());
-                    if (
+                case "PUT" -> {
+                    return (
                             goods.containsKey("name") &&
-                                    goods.containsKey("group_name") &&
-                                    goods.containsKey("amount") &&
-                                    goods.containsKey("price") &&
-                                    goods.containsKey("about") &&
-                                    goods.containsKey("producer") &&
-                                    (!goods.get("group_name").equals("")) &&
-                                    (Integer.parseInt(String.valueOf(goods.get("amount"))) >= 0) &&
-                                    (Double.parseDouble(String.valueOf(goods.get("price"))) > 0) &&
-                                    (!goods.get("producer").equals(""))
-                    )
-                    {
-                        return true;
-                    }
-                    break;
-                case "POST":
-                    if (goods.containsKey("group_name") && (goods.get("group_name").equals(""))){
+                            goods.containsKey("group_name") &&
+                            goods.containsKey("amount") &&
+                            goods.containsKey("price") &&
+                            goods.containsKey("about") &&
+                            goods.containsKey("producer") &&
+                            (!goods.get("group_name").equals("")) &&
+                            (Integer.parseInt(String.valueOf(goods.get("amount"))) >= 0) &&
+                            (Double.parseDouble(String.valueOf(goods.get("price"))) > 0) &&
+                            (!goods.get("producer").equals(""))
+                    );
+                }
+                case "POST" -> {
+                    if (goods.containsKey("group_name") && (goods.get("group_name").equals(""))) {
                         return false;
                     }
-                    if (goods.containsKey("amount") && (Integer.parseInt(String.valueOf(goods.get("amount"))) <= 0)){
+                    if (goods.containsKey("amount") && (Integer.parseInt(String.valueOf(goods.get("amount"))) <= 0)) {
                         return false;
                     }
-                    if (goods.containsKey("price") && (Double.parseDouble(String.valueOf(goods.get("price"))) <= 0)){
+                    if (goods.containsKey("price") && (Double.parseDouble(String.valueOf(goods.get("price"))) <= 0)) {
                         return false;
                     }
-                    if (goods.containsKey("producer") && (goods.get("producer").equals(""))){
+                    if (goods.containsKey("producer") && (goods.get("producer").equals(""))) {
                         return false;
                     }
                     return true;
-                default:
-                    break;
+                }
+                default -> {
+                    return false;
+                }
             }
-            return false;
         }
 
         public boolean validate_group(JSONObject groups, String method) {

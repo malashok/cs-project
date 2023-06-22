@@ -65,19 +65,25 @@ public class ProductsService {
     }
 
     public void createProduct(JSONObject productJson) throws SQLException {
-        db.createProduct(
-                (String) productJson.get("name"),
-                (Double) productJson.get("price"),
-                (Integer) productJson.get("amount"),
-                (String) productJson.get("description"),
-                (String) productJson.get("producer"),
-                (String) productJson.get("group_name")
-        );
+        System.out.println("creating " + productJson.toJSONString());
+
+        try {
+            db.createProduct(
+                    (String) productJson.get("name"),
+                    (Double) productJson.get("price"),
+                    Integer.parseInt(productJson.get("amount").toString()),
+                    (String) productJson.get("description"),
+                    (String) productJson.get("producer"),
+                    (String) productJson.get("group_name")
+            );
+        } catch (Exception e) {
+            System.out.println(e);
+        }
     }
 
     public void updateProduct(int id, JSONObject productJson) throws SQLException {
         //Products products = db.getProductById(id).get(0);
-        db.updateProduct(id, (String) productJson.get("name"), (Double) productJson.get("price"), (Integer) productJson.get("amount"), (String) productJson.get("description"), (String) productJson.get("producer"), (String) productJson.get("group_name"));
+        db.updateProduct(id, (String) productJson.get("name"), (Double) productJson.get("price"), Integer.parseInt(productJson.get("amount").toString()), (String) productJson.get("description"), (String) productJson.get("producer"), (String) productJson.get("group_name"));
 //        if (productJson.containsKey("amount")) {
 //            long amount = (long) productJson.get("amount");
 //            if (products.getAmount() > amount) {
