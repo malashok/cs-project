@@ -197,6 +197,54 @@ public class MyHttpServer {
 
             }
 
+            if (path.startsWith("/reduce/amount") && Objects.equals("PATCH", method)) {
+                String[] splitted_path = path.split("/");
+                int goodsId = -1;
+                int reduceAmont = -1;
+                if (splitted_path.length > 3) {
+                    try {
+                        goodsId = Integer.parseInt(splitted_path[3]);
+                        reduceAmont = Integer.parseInt(splitted_path[4]);
+                    } catch(NumberFormatException e) {
+                        send_response("404: Resource not found", 404, exchange);
+                        return;
+                    }
+                }
+                if (goodsId == -1) {
+                    send_response("400: Bad Request - Unspecified name in query for this endpoint", 400, exchange);
+                }
+                try {
+                    goods_service.reduceAmountOfProducts(reduceAmont, goodsId);
+                } catch (SQLException e) {
+                    throw new RuntimeException("error reduce "+e);
+                }
+                send_response("204: Updated object", 204, exchange);
+            }
+
+            if (path.startsWith("/add/amount") && Objects.equals("PATCH", method)) {
+                String[] splitted_path = path.split("/");
+                int goodsId = -1;
+                int reduceAmont = -1;
+                if (splitted_path.length > 3) {
+                    try {
+                        goodsId = Integer.parseInt(splitted_path[3]);
+                        reduceAmont = Integer.parseInt(splitted_path[4]);
+                    } catch(NumberFormatException e) {
+                        send_response("404: Resource not found", 404, exchange);
+                        return;
+                    }
+                }
+                if (goodsId == -1) {
+                    send_response("400: Bad Request - Unspecified name in query for this endpoint", 400, exchange);
+                }
+                try {
+                    goods_service.addAmountOfProducts(reduceAmont, goodsId);
+                } catch (SQLException e) {
+                    throw new RuntimeException(e);
+                }
+
+                send_response("204: Updated object", 204, exchange);
+            }
             if (path.startsWith("/login") && Objects.equals("POST", method)) {
                 try {
                     in = exchange.getRequestBody();
