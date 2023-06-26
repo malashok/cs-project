@@ -1,7 +1,7 @@
 package service;
 
 import db.Database;
-import db.PasswordEncrypt;
+import db.PasswordEncryptor;
 import db.User;
 import org.json.simple.JSONObject;
 import java.security.NoSuchAlgorithmException;
@@ -22,8 +22,8 @@ public class UserService {
         User userInDb = this.getUserByName(login);
         System.out.println(userInDb);
         if (userInDb != null) {
-            System.out.println("is equal " + Objects.equals(userInDb.getPassword(), PasswordEncrypt.encrypt(password)));
-            return Objects.equals(userInDb.getPassword(), PasswordEncrypt.encrypt(password));
+            System.out.println("is equal " + Objects.equals(userInDb.getPassword(), PasswordEncryptor.encrypt(password)));
+            return Objects.equals(userInDb.getPassword(), PasswordEncryptor.encrypt(password));
         } else {
             return false;
         }

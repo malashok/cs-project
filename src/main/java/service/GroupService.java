@@ -3,7 +3,6 @@ package service;
 
 import db.Database;
 import db.Group;
-import db.Products;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
@@ -12,45 +11,44 @@ import java.util.List;
 
 public class GroupService {
     public Database db;
-
     public GroupService(Database db) {
         this.db = db;
     }
 
     public JSONObject getGroupById(int name) {
         Group gr = db.getGroupById(name);
-        JSONObject groups_json = new JSONObject();
-        groups_json.put("name", gr.getName());
-        groups_json.put("description", gr.getDescription());
-        groups_json.put("id", gr.getId());
-        return groups_json;
+        JSONObject groupsJson = new JSONObject();
+        groupsJson.put("name", gr.getName());
+        groupsJson.put("description", gr.getDescription());
+        groupsJson.put("id", gr.getId());
+        return groupsJson;
     }
 
     public JSONObject getAllGroups() {
         List<Group> groups = db.getAllGroups();
-        JSONArray groups_array = new JSONArray();
-        JSONObject groups_json = new JSONObject();
+        JSONArray groupsArr = new JSONArray();
+        JSONObject groupsJson = new JSONObject();
         int i = 0;
         while(!groups.isEmpty()){
-            JSONObject group_json = new JSONObject();
-            group_json.put("name", groups.get(i).getName());
-            group_json.put("description", groups.get(i).getDescription());
-            group_json.put("id", groups.get(i).getId());
+            JSONObject groupJson = new JSONObject();
+            groupJson.put("name", groups.get(i).getName());
+            groupJson.put("description", groups.get(i).getDescription());
+            groupJson.put("id", groups.get(i).getId());
             groups.remove(i);
-            groups_array.add(group_json);
+            groupsArr.add(groupJson);
         }
-        groups_json.put("result", groups_array);
-        return groups_json;
+        groupsJson.put("result", groupsArr);
+        return groupsJson;
     }
 
-    public void createGroup(JSONObject group_json) throws SQLException {
-        String name = (String) group_json.get("name");
-        String about = (String) group_json.get("description");
+    public void createGroup(JSONObject groupJson) throws SQLException {
+        String name = (String) groupJson.get("name");
+        String about = (String) groupJson.get("description");
         db.createGroup(name, about);
     }
 
-    public void updateGroup(int id, JSONObject group_json) throws SQLException {
-        db.updateGroup(id, (String) group_json.get("name"),(String) group_json.get("description"));
+    public void updateGroup(int id, JSONObject groupJson) throws SQLException {
+        db.updateGroup(id, (String) groupJson.get("name"),(String) groupJson.get("description"));
     }
 
     public void deleteGroup(int id) throws SQLException {

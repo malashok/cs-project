@@ -17,19 +17,6 @@ public class ProductsService {
         this.db = db;
     }
 
-    public JSONObject getProductByName(String name) {
-        Products products = db.getProductByName(name);
-        JSONObject productJson = new JSONObject();
-        productJson.put("group_name", products.getGroup());
-        productJson.put("name", name);
-        productJson.put("amount", products.getAmount());
-        productJson.put("price", products.getPrice());
-        productJson.put("description", products.getDescription());
-        productJson.put("producer", products.getProducer());
-        productJson.put("id", products.getId());
-        return productJson;
-    }
-
     public JSONObject getProductById(int id) {
         Products products = db.getProductById(id);
         JSONObject productJson = new JSONObject();
@@ -43,7 +30,7 @@ public class ProductsService {
         return productJson;
     }
 
-    public JSONObject getAll(){
+    public JSONObject getAll() {
         ArrayList<Products> products = db.getAllProducts();
         JSONArray products_array = new JSONArray();
         JSONObject productJson = new JSONObject();
@@ -82,40 +69,11 @@ public class ProductsService {
     }
 
     public void updateProduct(int id, JSONObject productJson) throws SQLException {
-        //Products products = db.getProductById(id).get(0);
-            db.updateProduct(id, (String) productJson.get("name"), Double.parseDouble(productJson.get("price").toString()), Integer.parseInt(productJson.get("amount").toString()), (String) productJson.get("description"), (String) productJson.get("producer"), (String) productJson.get("group_name"));
-//        if (productJson.containsKey("amount")) {
-//            long amount = (long) productJson.get("amount");
-//            if (products.getAmount() > amount) {
-//                db.updateProduct(productJson.get("id"),  (int) (products.getAmount() - amount), name);
-//            } else {
-//                db.add_product_by_name((int) (amount - products.getAmount()), name);
-//            }
-//        }
-//        if (productJson.containsKey("price")) {
-//            double price = Double.parseDouble(String.valueOf(productJson.get("price")));
-//            if (products.getPrice() != price) {
-//                db.set_product_price_by_name(price, name);
-//            }
-//        }
-//        if (productJson.containsKey("group_name")) {
-//            String group_name = (String) productJson.get("group_name");
-//            if (products.getGroup() != group_name) {
-//                db.set_product_group_by_name(group_name, name);
-//            }
-//        }
-//        if (productJson.containsKey("description")) {
-//            String description = (String) productJson.get("description");
-//            if (products.getDescription() != description) {
-//                db.set_product_description_by_name(description, name);
-//            }
-//        }
-//        if (productJson.containsKey("producer")) {
-//            String producer = (String) productJson.get("producer");
-//            if (products.getProducer() != producer) {
-//                db.set_product_producer_by_name(producer, name);
-//            }
-//        }
+        db.updateProduct(id, (String) productJson.get("name"),
+                Double.parseDouble(productJson.get("price").toString()),
+                Integer.parseInt(productJson.get("amount").toString()),
+                (String) productJson.get("description"),
+                (String) productJson.get("producer"), (String) productJson.get("group_name"));
     }
 
     public void deleteProduct(int product) throws SQLException {

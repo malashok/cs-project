@@ -3,10 +3,6 @@ package server;
 import com.sun.net.httpserver.*;
 
 import db.Database;
-import db.User;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
-import io.jsonwebtoken.security.Keys;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
@@ -18,8 +14,6 @@ import javax.net.ssl.*;
 import java.io.*;
 import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
-import java.security.Key;
-import java.security.KeyStore;
 import java.security.NoSuchAlgorithmException;
 import java.sql.SQLException;
 import java.util.Arrays;
@@ -29,12 +23,11 @@ import java.util.concurrent.Executors;
 public class MyHttpServer {
 
     public static HttpsServer server;
-    public static HttpServer http_server;
-    static Database database_manager = new Database();
-    static ProductsService goods_service = new ProductsService(database_manager);
-
-    static GroupService group_service = new GroupService(database_manager);
-    static UserService userService = new UserService(database_manager);
+    public static HttpServer serverHttp;
+    static Database db = new Database();
+    static ProductsService serviceProd = new ProductsService(db);
+    static GroupService serviceGroup = new GroupService(db);
+    static UserService serviceUser = new UserService(db);
     public static final int PORT = 5001;
 
     public static void main(String[] args) throws Exception {
@@ -42,13 +35,13 @@ public class MyHttpServer {
     }
 
     public static void start_http() throws Exception {
-        http_server = HttpServer.create();
-        http_server.bind(new InetSocketAddress(PORT), 0);
-        HttpContext context = http_server.createContext("/", new RequestHandler());
+        serverHttp = HttpServer.create();
+        serverHttp.bind(new InetSocketAddress(PORT), 0);
+        serverHttp.createContext("/", new Handler());
         //context.setAuthenticator(new Auth());
-        http_server.setExecutor(Executors.newFixedThreadPool(8));
-        http_server.start();
-        System.out.println("Server started on "+ PORT + " port...");
+        serverHttp.setExecutor(Executors.newFixedThreadPool(8));
+        serverHttp.start();
+        System.out.println("Sever started on port: "+ PORT);
     }
 
     public static void start() throws Exception {
@@ -81,50 +74,41 @@ public class MyHttpServer {
             }
         });
 
-        HttpContext context = server.createContext("/", new RequestHandler());
+        HttpContext context = server.createContext("/", new Handler());
         //context.setAuthenticator(new Auth());
         server.setExecutor(Executors.newFixedThreadPool(8));
         server.start();
-        System.out.println("Sever started on "+ PORT + " port...");
+        System.out.println("Sever started on port: " +PORT);
     }
-
-    public static void finish() throws Exception {
-        server.stop(1);
-    }
-
-    public static void finish_http() throws Exception {
-        http_server.stop(1);
-    }
-
-    static class RequestHandler implements HttpHandler {
+    
+    static class Handler implements HttpHandler {
 
         @Override
         public void handle(HttpExchange exchange) throws IOException {
             InputStream in;
-            JSONObject goods;
+            JSONObject products;
             JSONObject group;
-            JSONParser json_parser = new JSONParser();
+            JSONParser parser = new JSONParser();
             String path = exchange.getRequestURI().getPath();
             String method = exchange.getRequestMethod();
 
             exchange.getResponseHeaders().add("Access-Control-Allow-Origin", "*");
             if (method.equalsIgnoreCase("OPTIONS")) {
-                exchange.getResponseHeaders().add("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, PATCH, OPTIONS");
+                exchange.getResponseHeaders().add("Access-Control-Allow-Methods", "GET, POST, DELETE, PATCH, OPTIONS");
                 exchange.getResponseHeaders().add("Access-Control-Allow-Headers", "Content-Type,Authorization");
                 exchange.sendResponseHeaders(204, -1);
             }
 
             System.out.println(path + " " + method);
             if (path.startsWith("/api/goods")) {
-                System.out.println("get this");
-                String[] splitted_path = path.split("/");
-                System.out.println(Arrays.toString(splitted_path));
-                int goodsId = -1;
-                if (splitted_path.length > 3) {
+                String[] splittedPathArr = path.split("/");
+                System.out.println(Arrays.toString(splittedPathArr));
+                int productsId = -1;
+                if (splittedPathArr.length > 3) {
                     try {
-                        goodsId = Integer.parseInt(splitted_path[3]);
-                    } catch(NumberFormatException e) {
-                        send_response("404: Resource not found", 404, exchange);
+                        productsId = Integer.parseInt(splittedPathArr[3]);
+                    } catch (NumberFormatException e) {
+                        sendResponse("404: Resource not found", 404, exchange);
                         return;
                     }
                 }
@@ -132,62 +116,43 @@ public class MyHttpServer {
                     switch (method) {
                         case "POST" -> {
                             in = exchange.getRequestBody();
-                            goods = (JSONObject) json_parser.parse(new InputStreamReader(in, StandardCharsets.UTF_8));
-                            System.out.println("goods" + goods);
+                            products = (JSONObject) parser.parse(new InputStreamReader(in, StandardCharsets.UTF_8));
+                            System.out.println("products" + products);
 
-                            if (!validate_goods(goods, method)) {
+                            if (!validateProducts(products, method)) {
                                 System.out.println("invalid");
-                                send_response("409: Conflict - your data contains errors", 409, exchange);
+                                sendResponse("409: Conflict", 409, exchange);
                                 return;
                             }
-                            goods_service.createProduct(goods);
-                            send_response("204: Updated object", 204, exchange);
+                            serviceProd.createProduct(products);
+                            sendResponse("204: Product was created", 204, exchange);
 
                         }
                         case "GET" -> {
-                            if (goodsId != -1) {
-                                send_response(goods_service.getProductById(goodsId).toJSONString(), 200, exchange);
+                            if (productsId != -1) {
+                                sendResponse(serviceProd.getProductById(productsId).toJSONString(), 200, exchange);
                             } else {
-                                send_response(goods_service.getAll().toJSONString(), 200, exchange);
+                                sendResponse(serviceProd.getAll().toJSONString(), 200, exchange);
                             }
-                        }
-                        case "PUT" -> {
-                            in = exchange.getRequestBody();
-                            goods = (JSONObject) json_parser.parse(new InputStreamReader(in, StandardCharsets.UTF_8));
-                            if (!validate_goods(goods, method)) {
-                                send_response("409: Conflict - your data contains errors", 409, exchange);
-                                return;
-                            }
-                            goods_service.createProduct(goods);
-                            send_response("Product added", 201, exchange);
                         }
                         case "PATCH" -> {
-                            if (goodsId == -1) {
-                                send_response("400: Bad Request - Unspecified name in query for this endpoint", 400, exchange);
+                            if (productsId == -1) {
+                                sendResponse("400: Bad request", 400, exchange);
                             }
                             System.out.println(exchange.getRequestBody());
                             in = exchange.getRequestBody();
-                            goods = (JSONObject) json_parser.parse(new InputStreamReader(in, StandardCharsets.UTF_8));
-                            System.out.println(goods);
-//                            if (!validate_goods(goods, method)) {
-//                                send_response("409: Conflict - your data contains errors", 409, exchange);
-//                                return;
-//                            }
-                            System.out.println(goods);
-                            goods_service.updateProduct(goodsId, goods);
-                            send_response("204: Updated object", 204, exchange);
+                            products = (JSONObject) parser.parse(new InputStreamReader(in, StandardCharsets.UTF_8));
+                            serviceProd.updateProduct(productsId, products);
+                            sendResponse("204: Product was updated", 204, exchange);
                         }
                         case "DELETE" -> {
-                            if (goodsId == -1) {
-                                send_response("400: Bad Request - Unspecified name in query for this endpoint", 400, exchange);
+                            if (productsId == -1) {
+                                sendResponse("400: Bad request", 400, exchange);
                             }
-
-                            goods_service.deleteProduct(goodsId);
-                            send_response("204: Deleted object", 204, exchange);
+                            serviceProd.deleteProduct(productsId);
+                            sendResponse("204: Product was deleted", 204, exchange);
                         }
-                        default -> {
-
-                        }
+                        default -> {}
                     }
                 } catch (ParseException e) {
                     throw new RuntimeException(e);
@@ -198,67 +163,67 @@ public class MyHttpServer {
             }
 
             if (path.startsWith("/reduce/amount") && Objects.equals("PATCH", method)) {
-                String[] splitted_path = path.split("/");
-                int goodsId = -1;
+                String[] splittedPathArr = path.split("/");
+                int productsId = -1;
                 int reduceAmont = -1;
-                if (splitted_path.length > 3) {
+                if (splittedPathArr.length > 3) {
                     try {
-                        goodsId = Integer.parseInt(splitted_path[3]);
-                        reduceAmont = Integer.parseInt(splitted_path[4]);
-                    } catch(NumberFormatException e) {
-                        send_response("404: Resource not found", 404, exchange);
+                        productsId = Integer.parseInt(splittedPathArr[3]);
+                        reduceAmont = Integer.parseInt(splittedPathArr[4]);
+                    } catch (NumberFormatException e) {
+                        sendResponse("404: Resource not found", 404, exchange);
                         return;
                     }
                 }
-                if (goodsId == -1) {
-                    send_response("400: Bad Request - Unspecified name in query for this endpoint", 400, exchange);
+                if (productsId == -1) {
+                    sendResponse("400: Bad request", 400, exchange);
                 }
                 try {
-                    goods_service.reduceAmountOfProducts(reduceAmont, goodsId);
+                    serviceProd.reduceAmountOfProducts(reduceAmont, productsId);
                 } catch (SQLException e) {
-                    throw new RuntimeException("error reduce "+e);
+                    throw new RuntimeException("Error reduce " + e);
                 }
-                send_response("204: Updated object", 204, exchange);
+                sendResponse("204: Object was updated ", 204, exchange);
             }
 
             if (path.startsWith("/add/amount") && Objects.equals("PATCH", method)) {
-                String[] splitted_path = path.split("/");
-                int goodsId = -1;
+                String[] splittedPathArr = path.split("/");
+                int productsId = -1;
                 int reduceAmont = -1;
-                if (splitted_path.length > 3) {
+                if (splittedPathArr.length > 3) {
                     try {
-                        goodsId = Integer.parseInt(splitted_path[3]);
-                        reduceAmont = Integer.parseInt(splitted_path[4]);
-                    } catch(NumberFormatException e) {
-                        send_response("404: Resource not found", 404, exchange);
+                        productsId = Integer.parseInt(splittedPathArr[3]);
+                        reduceAmont = Integer.parseInt(splittedPathArr[4]);
+                    } catch (NumberFormatException e) {
+                        sendResponse("404: Resource not found", 404, exchange);
                         return;
                     }
                 }
-                if (goodsId == -1) {
-                    send_response("400: Bad Request - Unspecified name in query for this endpoint", 400, exchange);
+                if (productsId == -1) {
+                    sendResponse("400: Bad request", 400, exchange);
                 }
                 try {
-                    goods_service.addAmountOfProducts(reduceAmont, goodsId);
+                    serviceProd.addAmountOfProducts(reduceAmont, productsId);
                 } catch (SQLException e) {
                     throw new RuntimeException(e);
                 }
 
-                send_response("204: Updated object", 204, exchange);
+                sendResponse("204: object was updated ", 204, exchange);
             }
             if (path.startsWith("/login") && Objects.equals("POST", method)) {
                 try {
                     in = exchange.getRequestBody();
-                    JSONObject inputUser = (JSONObject) json_parser.parse(new InputStreamReader(in, StandardCharsets.UTF_8));
-                    boolean verified = userService.login(inputUser);
+                    JSONObject inputUser = (JSONObject) parser.parse(new InputStreamReader(in, StandardCharsets.UTF_8));
+                    boolean verified = serviceUser.login(inputUser);
 
                     if (verified) {
                         String jwt = JWT.createJwt((String) inputUser.get("name"));
                         exchange.getResponseHeaders().add("Authorization", "Bearer " + jwt);
-                        JSONObject jwt_json = new JSONObject();
-                        jwt_json.put("name", JWT.takeNameFromJwt(jwt));
-                        send_response(jwt_json.toJSONString(), 200, exchange);
+                        JSONObject jwtJson = new JSONObject();
+                        jwtJson.put("name", JWT.takeNameFromJwt(jwt));
+                        sendResponse(jwtJson.toJSONString(), 200, exchange);
                     } else {
-                        send_response("401: Authentication failed", 401, exchange);
+                        sendResponse("401: Authentication failed", 401, exchange);
                     }
                 } catch (ParseException e) {
                     throw new RuntimeException(e);
@@ -268,57 +233,49 @@ public class MyHttpServer {
                     throw new RuntimeException(e);
                 }
             }
-            if(path.startsWith("/api/group")){
-                String[] splitted_path = path.split("/");
-                int group_name = -1;
-                if (splitted_path.length > 3) {
+            if (path.startsWith("/api/group")) {
+                String[] splittedPathArr = path.split("/");
+                int groupName = -1;
+                if (splittedPathArr.length > 3) {
                     try {
-                        group_name = Integer.parseInt(String.valueOf(splitted_path[3]));
-                    } catch(NumberFormatException e) {
-                        send_response("404: Resource not found", 404, exchange);
+                        groupName = Integer.parseInt(String.valueOf(splittedPathArr[3]));
+                    } catch (NumberFormatException e) {
+                        sendResponse("404: Resource not found", 404, exchange);
                         return;
                     }
                 }
                 try {
                     switch (method) {
-                        case "GET":
-                            if (group_name != -1) {
-                                send_response(group_service.getGroupById(group_name).toJSONString(), 200, exchange);
+                        case "GET" -> {
+                            if (groupName != -1) {
+                                sendResponse(serviceGroup.getGroupById(groupName).toJSONString(), 200, exchange);
                             } else {
-                                send_response(group_service.getAllGroups().toJSONString(), 200, exchange);
+                                sendResponse(serviceGroup.getAllGroups().toJSONString(), 200, exchange);
                             }
-                            break;
-                        case "POST":
+                        }
+                        case "POST" -> {
                             in = exchange.getRequestBody();
-                            group = (JSONObject) json_parser.parse(new InputStreamReader(in, StandardCharsets.UTF_8));
-
-//                            if (!validate_group(group, method)) {
-//                                send_response("409: Conflict - your data contains errors", 409, exchange);
-//                                return;
-//                            }
-                            group_service.createGroup(group);
-                            send_response("Group was added", 201, exchange);
-                            return;
-                        case "PATCH":
-                            if (group_name == -1) {
-                                send_response("400: Bad Request - Unspecified ID in query for this endpoint", 400, exchange);
+                            group = (JSONObject) parser.parse(new InputStreamReader(in, StandardCharsets.UTF_8));
+                            serviceGroup.createGroup(group);
+                            sendResponse("Group was added", 201, exchange);
+                        }
+                        case "PATCH" -> {
+                            if (groupName == -1) {
+                                sendResponse("400: Bad request", 400, exchange);
                             }
                             in = exchange.getRequestBody();
-                            group = (JSONObject) json_parser.parse(new InputStreamReader(in, StandardCharsets.UTF_8));
-
-                            group_service.updateGroup(group_name, group);
-                            send_response("204: Updated object", 204, exchange);
-                            break;
-                        case "DELETE":
-                            if (group_name == -1) {
-                                send_response("400: Bad Request - Unspecified ID in query for this endpoint", 400, exchange);
+                            group = (JSONObject) parser.parse(new InputStreamReader(in, StandardCharsets.UTF_8));
+                            serviceGroup.updateGroup(groupName, group);
+                            sendResponse("204: object was updated ", 204, exchange);
+                        }
+                        case "DELETE" -> {
+                            if (groupName == -1) {
+                                sendResponse("400: Bad Request", 400, exchange);
                             }
-
-                            group_service.deleteGroup(group_name);
-                            send_response("204: Deleted object", 204, exchange);
-                            break;
-                        default:
-                            break;
+                            serviceGroup.deleteGroup(groupName);
+                            sendResponse("204: object was deleted ", 204, exchange);
+                        }
+                        default -> {}
                     }
                 } catch (ParseException e) {
                     throw new RuntimeException(e);
@@ -327,44 +284,44 @@ public class MyHttpServer {
                 }
 
             }
-            send_response("404: Not Found", 404, exchange);
+            sendResponse("404: Not Found", 404, exchange);
         }
-        public void send_response(String message, int status_code, HttpExchange exchange) throws IOException {
-            System.out.println("send response");
-            exchange.sendResponseHeaders(status_code, message.getBytes().length);
-            OutputStream os = exchange.getResponseBody();
 
+        public void sendResponse(String message, int status, HttpExchange exchange) throws IOException {
+            System.out.println("send response");
+            exchange.sendResponseHeaders(status, message.getBytes().length);
+            OutputStream os = exchange.getResponseBody();
             os.write(message.getBytes());
             os.close();
         }
 
-        public boolean validate_goods(JSONObject goods, String method) {
+        public boolean validateProducts(JSONObject products, String method) {
             switch (method) {
-                case "PUT" -> {
+                case "PATCH" -> {
                     return (
-                            goods.containsKey("name") &&
-                            goods.containsKey("group_name") &&
-                            goods.containsKey("amount") &&
-                            goods.containsKey("price") &&
-                            goods.containsKey("about") &&
-                            goods.containsKey("producer") &&
-                            (!goods.get("group_name").equals("")) &&
-                            (Integer.parseInt(String.valueOf(goods.get("amount"))) >= 0) &&
-                            (Double.parseDouble(String.valueOf(goods.get("price"))) > 0) &&
-                            (!goods.get("producer").equals(""))
+                            products.containsKey("name") &&
+                                    products.containsKey("groupName") &&
+                                    products.containsKey("amount") &&
+                                    products.containsKey("price") &&
+                                    products.containsKey("about") &&
+                                    products.containsKey("producer") &&
+                                    (!products.get("groupName").equals("")) &&
+                                    (Integer.parseInt(String.valueOf(products.get("amount"))) >= 0) &&
+                                    (Double.parseDouble(String.valueOf(products.get("price"))) > 0) &&
+                                    (!products.get("producer").equals(""))
                     );
                 }
                 case "POST" -> {
-                    if (goods.containsKey("group_name") && (goods.get("group_name").equals(""))) {
+                    if (products.containsKey("groupName") && (products.get("groupName").equals(""))) {
                         return false;
                     }
-                    if (goods.containsKey("amount") && (Integer.parseInt(String.valueOf(goods.get("amount"))) <= 0)) {
+                    if (products.containsKey("amount") && (Integer.parseInt(String.valueOf(products.get("amount"))) <= 0)) {
                         return false;
                     }
-                    if (goods.containsKey("price") && (Double.parseDouble(String.valueOf(goods.get("price"))) <= 0)) {
+                    if (products.containsKey("price") && (Double.parseDouble(String.valueOf(products.get("price"))) <= 0)) {
                         return false;
                     }
-                    if (goods.containsKey("producer") && (goods.get("producer").equals(""))) {
+                    if (products.containsKey("producer") && (products.get("producer").equals(""))) {
                         return false;
                     }
                     return true;
@@ -373,13 +330,6 @@ public class MyHttpServer {
                     return false;
                 }
             }
-        }
-
-        public boolean validate_group(JSONObject groups, String method) {
-            if (groups.containsKey("description") && ((String) groups.get("description")).length() != 0)
-                return true;
-
-            return false;
         }
     }
 
@@ -397,7 +347,7 @@ public class MyHttpServer {
                 if(jwt.equals("null"))
                     return new Failure(403);
                 String name = JWT.takeNameFromJwt(jwt);
-                User user = userService.getUserByName(name);
+                User user = serviceUser.getUserByName(name);
                 if (user == null) return new Failure(403);
                 else
                     return new Success(new HttpPrincipal(user.getName(), "realm"));
