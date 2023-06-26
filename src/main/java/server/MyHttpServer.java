@@ -48,7 +48,7 @@ public class MyHttpServer {
         //context.setAuthenticator(new Auth());
         http_server.setExecutor(Executors.newFixedThreadPool(8));
         http_server.start();
-        System.out.println("Sever started on "+ PORT + " port...");
+        System.out.println("Server started on "+ PORT + " port...");
     }
 
     public static void start() throws Exception {
@@ -255,8 +255,6 @@ public class MyHttpServer {
                         String jwt = JWT.createJwt((String) inputUser.get("name"));
                         exchange.getResponseHeaders().add("Authorization", "Bearer " + jwt);
                         JSONObject jwt_json = new JSONObject();
-                        //jwt_json.put("jwt", jwt);
-                        //send_response(jwt_json.toJSONString(), 200, exchange);
                         jwt_json.put("name", JWT.takeNameFromJwt(jwt));
                         send_response(jwt_json.toJSONString(), 200, exchange);
                     } else {

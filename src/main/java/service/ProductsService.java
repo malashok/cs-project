@@ -30,8 +30,8 @@ public class ProductsService {
         return productJson;
     }
 
-    public JSONObject getProductById(int name) {
-        Products products = db.getProductById(name);
+    public JSONObject getProductById(int id) {
+        Products products = db.getProductById(id);
         JSONObject productJson = new JSONObject();
         productJson.put("name", products.getName());
         productJson.put("group_name", products.getGroup());

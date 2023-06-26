@@ -337,9 +337,7 @@ public class Database {
             this.sql_query.setString(1, name);
             this.result_set = this.sql_query.executeQuery();
             boolean valid = this.result_set.next();
-            if (valid == false) {
-                return null;
-            }
+            if (valid == false) { return null; }
             User user = new User(
                     this.result_set.getInt("id"),
                     this.result_set.getString("name"),
