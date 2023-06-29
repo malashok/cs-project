@@ -10,7 +10,6 @@ import service.GroupService;
 import service.ProductsService;
 import service.UserService;
 
-import javax.net.ssl.*;
 import java.io.*;
 import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
@@ -38,47 +37,9 @@ public class MyHttpServer {
         serverHttp = HttpServer.create();
         serverHttp.bind(new InetSocketAddress(PORT), 0);
         serverHttp.createContext("/", new Handler());
-        //context.setAuthenticator(new Auth());
         serverHttp.setExecutor(Executors.newFixedThreadPool(8));
         serverHttp.start();
         System.out.println("Sever started on port: "+ PORT);
-    }
-
-    public static void start() throws Exception {
-        server = HttpsServer.create();
-        server.bind(new InetSocketAddress(PORT), 0);
-
-        SSLContext sslContext = SSLContext.getInstance("TLS");
-//        char[] password = "yourpassword".toCharArray();
-//        KeyStore keyStore = KeyStore.getInstance("JKS");
-//        FileInputStream keystream = new FileInputStream("sslkey.jks");
-//        keyStore.load(keystream, password);
-//        KeyManagerFactory keyManager = KeyManagerFactory.getInstance("SunX509");
-//        keyManager.init(keyStore, password);
-//        TrustManagerFactory trustManager = TrustManagerFactory.getInstance("SunX509");
-//        trustManager.init(keyStore);
-//        sslContext.init(keyManager.getKeyManagers(), trustManager.getTrustManagers(), null);
-        server.setHttpsConfigurator(new HttpsConfigurator(sslContext) {
-            public void configure(HttpsParameters params) {
-                try {
-                    SSLContext sslContext = getSSLContext();
-                    SSLEngine sslEngine = sslContext.createSSLEngine();
-                    params.setNeedClientAuth(false);
-                    params.setCipherSuites(sslEngine.getEnabledCipherSuites());
-                    params.setProtocols(sslEngine.getEnabledProtocols());
-                    SSLParameters sslParameters = sslContext.getSupportedSSLParameters();
-                    params.setSSLParameters(sslParameters);
-                } catch (Exception e) {
-                    System.out.println("Failed to create the HTTPS port");
-                }
-            }
-        });
-
-        HttpContext context = server.createContext("/", new Handler());
-        //context.setAuthenticator(new Auth());
-        server.setExecutor(Executors.newFixedThreadPool(8));
-        server.start();
-        System.out.println("Sever started on port: " +PORT);
     }
     
     static class Handler implements HttpHandler {
@@ -332,30 +293,6 @@ public class MyHttpServer {
             }
         }
     }
-
-   /* static class Auth extends Authenticator {
-        @Override
-        public Result authenticate(HttpExchange httpExchange) {
-            try {
-                String path = httpExchange.getRequestURI().getPath();
-                String method = httpExchange.getRequestMethod();
-                if (path.equals("/login"))
-                    return new Success(new HttpPrincipal("Default", "realm"));
-                if (method.equalsIgnoreCase("OPTIONS"))
-                    return new Success(new HttpPrincipal("Default", "realm"));
-                String jwt = String.valueOf(httpExchange.getRequestHeaders().getFirst("Authorization")).replace("Bearer ", "");
-                if(jwt.equals("null"))
-                    return new Failure(403);
-                String name = JWT.takeNameFromJwt(jwt);
-                User user = serviceUser.getUserByName(name);
-                if (user == null) return new Failure(403);
-                else
-                    return new Success(new HttpPrincipal(user.getName(), "realm"));
-            } catch (SQLException e) {
-                throw new RuntimeException(e);
-            }
-        }
-    }*/
 
 
 }
